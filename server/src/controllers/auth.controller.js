@@ -82,8 +82,38 @@ const handleLogout = async (req, res) => {
 
 }
 
+const handleUserDetails = async (req, res) => {
+  const user = req.user
+
+  if (!user) {
+    return res.status(401).json({
+      message: "Unauthorized user"
+    })
+  }
+
+  return res.status(200).json({
+    message: "User details fetched successfully",
+    data: user
+  })
+}
+
+const getAllUsers = async (_, res) => {
+  const users = await User.find()
+
+  return res.status(200).json({
+    message: "All users",
+    data: {
+      users,
+      total: users.length
+    }
+  })
+
+}
+
 export {
   register,
   loginUser,
-  handleLogout
+  handleLogout,
+  handleUserDetails,
+  getAllUsers
 }
