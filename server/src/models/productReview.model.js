@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-const productReviewSchema = new mongoose.Schema(
+const productReviewSchema = new Schema(
   {
     productId: {
       type: mongoose.Schema.Types.ObjectId,
