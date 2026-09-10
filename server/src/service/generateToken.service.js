@@ -10,7 +10,6 @@ const generateAccessAndRefreshToken = async (id) => {
 		user.lastLoginAt = Date.now()
 
 		await user.save({ validateBeforeSave: false })
-
 		return { accessToken, refreshToken }
 	}
 	catch (error) {

@@ -57,15 +57,33 @@ const loginUser = async (req, res) => {
     })
   }
 
-  const { accessToken, refreshToken } = generateAccessAndRefreshToken(existingUser._id)
 
-  return res.status(200).cookie.set("refreshToken", refreshToken, cookieOptions).json({
+  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(existingUser._id)
+  return res.status(200).cookie("refreshToken", refreshToken, cookieOptions).cookie("accessToken", accessToken, cookieOptions).json({
     message: "User logged in successfully",
     data: { accessToken }
   })
 }
 
+const handleLogout = async (req, res) => {
+  await User.findByIdAndUpdate(req.user._id, {
+    $unset: {
+      refreshToken: 1, //this removed the field document
+    }
+  },
+    { new: true }
+  )
+
+  return res.status(200)
+    .clearCookie("accessToken", cookieOptions)
+    .clearCookie("refreshToken", cookieOptions).json({
+      message: "Logged out successfully",
+    })
+
+}
+
 export {
   register,
-  loginUser
+  loginUser,
+  handleLogout
 }
