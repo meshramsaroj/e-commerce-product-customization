@@ -33,7 +33,7 @@ const createAddress = async (req, res) => {
 
 }
 
-const getAllAddresses = async (req, res) => {
+const getAllMyAddresses = async (req, res) => {
   const addresses = await Address.find({ userId: req.user._id })
 
   return res.status(200).json({
@@ -42,6 +42,23 @@ const getAllAddresses = async (req, res) => {
       addresses,
       total: addresses.length
     }
+  })
+}
+
+const getAddress = async (req, res) => {
+  const { addressId } = req.params
+
+  const address = await Address.findOne({ userId: req.user._id, _id: addressId })
+
+  if (!address) {
+    return res.status(404).json({
+      message: "Address not found"
+    })
+  }
+
+  return res.status(200).json({
+    message: "Address found successfully",
+    data: address
   })
 }
 
@@ -96,7 +113,8 @@ const deleteAddress = async (req, res) => {
 
 export {
   createAddress,
-  getAllAddresses,
+  getAllMyAddresses,
   updateAddress,
-  deleteAddress
+  deleteAddress,
+  getAddress
 }
