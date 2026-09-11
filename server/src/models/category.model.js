@@ -26,7 +26,7 @@ const categorySchema = new Schema({
     default: null,
     index: true,
   },
-
+  
   isActive: {
     type: Boolean,
     default: true,
