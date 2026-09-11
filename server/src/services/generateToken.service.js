@@ -11,11 +11,9 @@ const generateAccessAndRefreshToken = async (id) => {
 
 		await user.save({ validateBeforeSave: false })
 		return { accessToken, refreshToken }
-	}
-	catch (error) {
+	} catch (error) {
 		throw ApiError(404, "Access and Refresh token generation is failed");
 	}
-
 }
 
 export {

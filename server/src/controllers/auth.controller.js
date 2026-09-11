@@ -1,12 +1,13 @@
 import { cookieOptions } from "../config/constants.js"
 import { User } from "../models/user.model.js"
-import { generateAccessAndRefreshToken } from "../service/generateToken.service.js"
+import { generateAccessAndRefreshToken } from "../services/generateToken.service.js"
+import { isRequireDataMissing } from "../utils/common.utils.js"
 
 const register = async (req, res) => {
   const { firstName, lastName, email, password, phone, role, isActive } = req.body
 
   if (
-    [firstName, lastName, email, password, role].some(field => field.trim() === "")
+    isRequireDataMissing([firstName, lastName, email, password, role])
   ) {
     throw new Error("Required fields are missing")
   }
