@@ -14,10 +14,13 @@ app.use(cookieParser()); // to perform browser cookie data
 import authRoute from "./routes/Auth/user_auth.route.js";
 import addressRoute from "./routes/Address/address.routes.js"
 import categoryRoute from "./routes/Product/category.routes.js"
+import productRoute from "./routes/Product/product.routes.js"
 
 app.use("/api/auth", authRoute)
 app.use("/api/addresses", addressRoute)
 app.use("/api/categories", categoryRoute)
+app.use("/api/products", productRoute)
+
 
 
 

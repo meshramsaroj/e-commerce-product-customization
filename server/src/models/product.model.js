@@ -50,7 +50,8 @@ const productSchema = new Schema({
 
   specifications: {
     type: Map, // it can have diffrenet attribute, which will be type of string
-    of: String
+    of: String,
+    default: null
   },
 
   rating: {
