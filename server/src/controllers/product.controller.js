@@ -95,8 +95,41 @@ const addSpecification = async (req, res) => {
   })
 }
 
-const updateProductImages = () => {
+const updateProductImages = async (req, res) => {
+  const { id } = req.params
 
+  const imageUrls = await Promise.all(req.files?.map(async file => {
+    const urlResponse = await getImageUrl(file)
+    return urlResponse?.url
+  }))
+
+  const updatedImages = await Product.findByIdAndUpdate(
+    { _id: id },
+    {
+      $push: {
+        images: {
+          $each: imageUrls
+        }
+      }
+    },
+    {
+      new: true,
+      runValidators: true
+    }
+  )
+
+  if (!updatedImages) {
+    return res.status(404).json({
+      message: "Product not found"
+    })
+  }
+
+  return res.status(200).json({
+    message: "Product images are succefully updated",
+    data: {
+      imageUrls
+    }
+  })
 }
 
 
