@@ -6,7 +6,7 @@
 }
 
 .container {
-    @apply w-full px-3 m-auto;
+    @apply w-full p-3 m-auto;
 }
 
 .logo {
@@ -19,4 +19,8 @@
 
 .label {
     @apply text-base text-black;
+}
+
+.text-title {
+    @apply text-2xl
 }

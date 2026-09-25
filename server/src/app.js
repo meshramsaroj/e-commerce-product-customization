@@ -1,10 +1,16 @@
 import express from "express";
 import cookieParser from "cookie-parser"
 import dotenv from "dotenv";
+import cors from "cors"
 
 dotenv.config()
 
 const app = express()
+
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true
+}))
 
 app.use(express.json({ limit: "16kb" })); // to read json data upto 16kb limit
 app.use(express.urlencoded({ limit: "16kb", extended: true })); // to read data from browser url
@@ -15,6 +21,7 @@ import authRoute from "./routes/Auth/user_auth.route.js";
 import addressRoute from "./routes/Address/address.routes.js"
 import categoryRoute from "./routes/Product/category.routes.js"
 import productRoute from "./routes/Product/product.routes.js"
+import { core } from "zod";
 
 app.use("/api/auth", authRoute)
 app.use("/api/addresses", addressRoute)

@@ -1,6 +1,7 @@
 import { faCartShopping, faLocationDot, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { NavLink } from "react-router-dom";
+import UserProfile from "./UserProfile";
 
 const Navbar = () => {
   return (
@@ -30,9 +31,7 @@ const Navbar = () => {
           <li>
             <span><FontAwesomeIcon size={"xl"} className="text-red-600" icon={faCartShopping} /> 0</span>
           </li>
-          <li><NavLink to="/" className="btn btn-link"> Login </NavLink></li>
-
-          <li><NavLink to="/register" className="btn btn-primary"> Create Account</NavLink></li>
+          <li><UserProfile /> </li>
         </ul>
       </div>
     </div>
