@@ -7,7 +7,7 @@ const Navbar = () => {
   return (
     <div className="navbar bg-base-100 shadow-sm ">
       <div>
-        <h1 className="logo">Shoppee</h1>
+        <NavLink to={"/"}><h1 className="logo">Shoppee</h1></NavLink>
       </div>
       <div className="flex-none">
         <ul className="menu menu-horizontal px-1 items-cneter">
