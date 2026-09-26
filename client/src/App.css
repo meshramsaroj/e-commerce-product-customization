@@ -6,7 +6,7 @@
 }
 
 .container {
-    @apply w-full p-3 m-auto;
+    @apply w-full px-6 py-5;
 }
 
 .logo {
@@ -22,5 +22,13 @@
 }
 
 .text-title {
-    @apply text-2xl
+    @apply text-2xl;
+}
+
+.truncate-text {
+    @apply min-w-0 w-full line-clamp-2;
+}
+
+.strickThrough {
+    @apply line-through text-gray-500;
 }
