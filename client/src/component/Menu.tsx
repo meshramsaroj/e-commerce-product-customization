@@ -1,5 +1,6 @@
-import { faBars, faHouse, faGear } from "@fortawesome/free-solid-svg-icons";
+import { faHouse, faGear } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { NavLink } from "react-router-dom";
 
 const Menu = () => {
   return (
@@ -10,21 +11,29 @@ const Menu = () => {
         className="drawer-overlay"
       />
 
-      <aside className="min-h-full w-64 bg-base-200">
+      <aside className="min-h-full w-64 bg-base-200 p-4">
+        <h3>Configuration</h3>
         <ul className="menu w-full p-4">
           <li>
             <button>
-              <FontAwesomeIcon icon={faHouse} />
-              <span>Homepage</span>
+              <NavLink to={"/categories"}>
+                <FontAwesomeIcon icon={faHouse} />
+                <span>Category</span>
+              </NavLink>
+
             </button>
           </li>
 
           <li>
             <button>
-              <FontAwesomeIcon icon={faGear} />
-              <span>Settings</span>
+              <NavLink to={"/products"}>
+                <FontAwesomeIcon icon={faGear} />
+                <span>Product</span>
+              </NavLink>
+
             </button>
           </li>
+
         </ul>
       </aside>
     </div>

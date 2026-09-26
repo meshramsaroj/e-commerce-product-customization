@@ -7,6 +7,10 @@ import ProductList from "./pages/ProductList";
 import Layout from "./component/Layout";
 
 import { ToastContainer } from "react-toastify";
+import Categories from "./pages/Categories";
+import Products from "./pages/Products";
+import CategoryDetails from "./pages/CategoryDetails";
+import ProductDetails from "./pages/ProductDetails";
 
 function App() {
   return (
@@ -16,13 +20,20 @@ function App() {
       <Routes>
 
         {/* Pages WITHOUT Navbar + Sidebar */}
-          <Route path="/register" element={<SignUp />} />
+        <Route path="/register" element={<SignUp />} />
 
 
         {/* Pages WITH Navbar + Sidebar */}
         <Route element={<Layout />}>
           <Route path="/" element={<ProductList />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/categories/:id" element={<CategoryDetails />} />
+
+          <Route path="/products" element={<Products />} />
+          <Route path="/products/:id" element={<ProductDetails />} />
+
+
         </Route>
 
       </Routes>
