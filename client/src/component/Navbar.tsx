@@ -1,38 +1,80 @@
-import { faCartShopping, faLocationDot, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBars,
+  faCartShopping,
+  faLocationDot,
+  faMagnifyingGlass,
+} from "@fortawesome/free-solid-svg-icons";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { NavLink } from "react-router-dom";
 import UserProfile from "./UserProfile";
 
 const Navbar = () => {
   return (
-    <div className="navbar bg-base-100 shadow-sm ">
-      <div>
-        <NavLink to={"/"}><h1 className="logo">Shoppee</h1></NavLink>
-      </div>
+    <div className="navbar bg-base-100 shadow-sm px-4">
+
+      {/* Hamburger */}
       <div className="flex-none">
-        <ul className="menu menu-horizontal px-1 items-cneter">
-          <li className="flex justify-between flex-row items-center">
-            <span><FontAwesomeIcon icon={faLocationDot} /></span>
-            <div className="flex flex-col items-baseline gap-0">
-              <p>Delivering to Current location, pincode</p>
-              <button>Update location</button>
-            </div>
-          </li>
-          <li>
-            <div className="join">
-              <div>
-                <label className="input w-md validator join-item">
-                  <input type="text" placeholder="Search..." required />
-                </label>
-              </div>
-              <button className="btn btn-neutral bg-orange-300 join-item"><FontAwesomeIcon className="text-black" icon={faMagnifyingGlass} /></button>
-            </div>
-          </li>
-          <li>
-            <span><FontAwesomeIcon size={"xl"} className="text-red-600" icon={faCartShopping} /> 0</span>
-          </li>
-          <li><UserProfile /> </li>
-        </ul>
+        <label
+          htmlFor="my-drawer"
+          className="btn btn-square btn-ghost"
+          aria-label="open sidebar"
+        >
+          <FontAwesomeIcon icon={faBars} />
+        </label>
+      </div>
+
+      {/* Location */}
+      <div className="flex-1">
+        <div className="flex items-center gap-2">
+          <FontAwesomeIcon icon={faLocationDot} />
+
+          <div className="flex flex-col">
+            <p className="text-sm">
+              Delivering to Current location, pincode
+            </p>
+
+            <button className="text-left text-sm text-orange-500">
+              Update location
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Search */}
+      <div className="hidden md:block">
+        <div className="join">
+          <label className="input validator join-item w-md">
+            <input
+              type="text"
+              placeholder="Search..."
+              required
+            />
+          </label>
+
+          <button className="btn btn-neutral bg-orange-300 join-item">
+            <FontAwesomeIcon
+              className="text-black"
+              icon={faMagnifyingGlass}
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* Cart */}
+      <div className="flex-none ml-4">
+        <button className="btn btn-ghost">
+          <FontAwesomeIcon
+            size="xl"
+            className="text-red-600"
+            icon={faCartShopping}
+          />
+          <span>0</span>
+        </button>
+      </div>
+
+      {/* Profile */}
+      <div className="flex-none">
+        <UserProfile />
       </div>
     </div>
   );

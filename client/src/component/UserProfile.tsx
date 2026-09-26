@@ -7,6 +7,7 @@ import { toast } from "react-toastify"
 
 const UserProfile = () => {
   const navigate = useNavigate()
+  const token = localStorage.getItem("accessToken")
   const { data: user } = useQuery({
     queryKey: ["user-details"],
     queryFn: getLoginUserDetails
@@ -20,15 +21,15 @@ const UserProfile = () => {
     }).catch(error => error)
   }
 
-  console.log("user",user)
+  console.log("user", user)
 
 
   return (
-    user?.firstName ?
+    token || user ?
       <div className="dropdown dropdown-bottom">
         <div className="avatar avatar-placeholder" tabIndex={0} role="button">
           <FontAwesomeIcon size="2x" icon={faUserCircle} />
-          <span className="text-sm">{user.firstName}</span>
+          <span className="text-sm">{user?.firstName}</span>
         </div>
         <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
           <li><a onClick={handleLogout}>Logout</a></li>
