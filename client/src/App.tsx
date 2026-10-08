@@ -11,11 +11,11 @@ import Categories from "./pages/Categories";
 import Products from "./pages/Products";
 import CategoryDetails from "./pages/CategoryDetails";
 import ProductDetails from "./pages/ProductDetails";
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminProducts from "./pages/AdminProducts";
-import AdminCategories from "./pages/AdminCategories";
-import AdminOrders from "./pages/AdminOrders";
-import AdminUsers from "./pages/AdminUsers";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import AdminProducts from "./pages/Admin/AdminProducts";
+import AdminCategories from "./pages/Admin/AdminCategories";
+import AdminOrders from "./pages/Admin/AdminOrders";
+import AdminUsers from "./pages/Admin/AdminUsers";
 import AdminLayout from "./component/Layouts/AdminLayout";
 
 function App() {

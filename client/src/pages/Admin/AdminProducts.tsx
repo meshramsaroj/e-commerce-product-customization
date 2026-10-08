@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { faBox, faEdit, faPlus, faStar, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useProducts } from "../hooks/product.hooks";
+import { useProducts } from "../../hooks/product.hooks";
+import AdminProductModal from "./AdminProductModal";
 
 type Product = {
   _id: string;
@@ -26,6 +28,7 @@ const formatPrice = (price: number | string | null | undefined) => {
 
 const AdminProducts = () => {
   const { data, isLoading, isError } = useProducts();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const products: Product[] = data?.data?.products ?? [];
 
   return (
@@ -37,7 +40,7 @@ const AdminProducts = () => {
             <h1 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">Products</h1>
             <p className="mt-1 text-sm text-slate-500">Manage your live catalog and product details.</p>
           </div>
-          <button className="btn btn-primary w-fit gap-2 bg-slate-900">
+          <button type="button" onClick={() => setIsModalOpen(true)} className="btn btn-primary w-fit gap-2 bg-slate-900">
             <FontAwesomeIcon icon={faPlus} /> Add product
           </button>
         </div>
@@ -133,6 +136,8 @@ const AdminProducts = () => {
           </section>
         )}
       </div>
+
+      <AdminProductModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </main>
   );
 };

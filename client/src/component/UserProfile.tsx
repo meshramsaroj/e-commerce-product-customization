@@ -21,7 +21,6 @@ const UserProfile = () => {
     }).catch(error => error)
   }
 
-  console.log("user", user)
 
   const handleNavigate =() => {
     navigate("/admin")
