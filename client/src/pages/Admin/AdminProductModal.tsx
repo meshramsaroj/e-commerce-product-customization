@@ -11,6 +11,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import FileUpload from "../../component/FileUpload";
 import FormInputField from "../../component/FormInputField";
+import ProductSpecificationsTable from "../../component/ProductSpecificationsTable";
 import { getCategoryIds } from "../../API_Service/categoriesApi";
 import { createProduct } from "../../API_Service/productsApi";
 import { useUpdateProductMutation } from "../../MutationService/ProductMutation";
@@ -26,6 +27,7 @@ type Product = {
   discountPrice?: number | string;
   isActive?: boolean;
   categoryId?: string | { _id?: string };
+  specifications?: Record<string, string>;
 };
 
 type AdminProductModalProps = {
@@ -44,6 +46,11 @@ type ProductFormValues = {
   isActive: boolean;
   slug: string;
   images: File[];
+  specifications: Array<{
+    id: string;
+    label: string;
+    value: string;
+  }>;
 };
 
 const defaultValues: ProductFormValues = {
@@ -56,6 +63,7 @@ const defaultValues: ProductFormValues = {
   isActive: true,
   slug: "",
   images: [],
+  specifications: [],
 };
 
 const getApiError = (error: unknown) => {
@@ -116,6 +124,13 @@ const AdminProductModal = ({ isOpen, product, onClose }: AdminProductModalProps)
       isActive: product?.isActive ?? true,
       slug: product?.slug ?? "",
       images: [],
+      specifications: Object.entries(product?.specifications ?? {}).map(
+        ([label, value], index) => ({
+          id: `existing-${index}-${label}`,
+          label,
+          value,
+        }),
+      ),
     });
     clearErrors();
   }, [clearErrors, isOpen, product, reset]);
@@ -166,6 +181,16 @@ const AdminProductModal = ({ isOpen, product, onClose }: AdminProductModalProps)
     formData.append("basePrice", String(basePrice));
     formData.append("discountPrice", String(discountPrice));
     formData.append("isActive", String(data.isActive));
+    formData.append(
+      "specifications",
+      JSON.stringify(
+        Object.fromEntries(
+          data.specifications
+            .filter((row) => row.label.trim() && row.value.trim())
+            .map((row) => [row.label.trim(), row.value.trim()]),
+        ),
+      ),
+    );
     data.images.forEach((image) => formData.append("images", image));
 
     try {
@@ -267,6 +292,8 @@ const AdminProductModal = ({ isOpen, product, onClose }: AdminProductModalProps)
                 <p className="mt-2 text-xs text-slate-400">Existing images are preserved when no replacement images are selected.</p>
               </div>
             ) : null}
+
+            <ProductSpecificationsTable control={control} />
 
             <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
               <button type="button" onClick={handleClose} className="btn border border-slate-200 bg-white px-5 text-slate-700 hover:bg-slate-50">Cancel</button>

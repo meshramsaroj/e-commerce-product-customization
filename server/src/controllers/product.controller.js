@@ -18,9 +18,24 @@ const getProductList = async (_, res) => {
   })
 }
 
+const parseSpecifications = (specifications) => {
+  if (!specifications) return undefined
+
+  if (typeof specifications === "string") {
+    try {
+      return JSON.parse(specifications)
+    } catch {
+      return undefined
+    }
+  }
+
+  return specifications
+}
+
 const createProduct = async (req, res) => {
   const { basePrice, discountPrice } = req.body
   const { categoryId } = req.params
+  const specifications = parseSpecifications(req.body.specifications)
 
 
   try {
@@ -46,7 +61,8 @@ const createProduct = async (req, res) => {
     const product = await Product.create({
       ...req.body,
       images: imageUrls,
-      categoryId
+      categoryId,
+      specifications,
     })
 
     if (!product) {
@@ -69,6 +85,7 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   const { id } = req.params
   const existingProduct = await Product.findById(id)
+  const specifications = parseSpecifications(req.body.specifications)
 
   if (!existingProduct) {
     return res.status(404).json({
@@ -92,6 +109,7 @@ const updateProduct = async (req, res) => {
       $set: {
         ...req.body,
         images: newImages.length ? newImages : currentImages,
+        specifications,
         discountPrice: req.body.discountPrice === "" || req.body.discountPrice === undefined
           ? undefined
           : Number(req.body.discountPrice),
