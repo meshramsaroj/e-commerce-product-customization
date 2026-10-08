@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+﻿import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
 import {
@@ -13,9 +13,24 @@ import FileUpload from "../../component/FileUpload";
 import FormInputField from "../../component/FormInputField";
 import { getCategoryIds } from "../../API_Service/categoriesApi";
 import { createProduct } from "../../API_Service/productsApi";
+import { useUpdateProductMutation } from "../../MutationService/ProductMutation";
+
+type Product = {
+  _id: string;
+  name: string;
+  slug: string;
+  brand?: string;
+  description?: string;
+  images?: string[];
+  basePrice?: number | string;
+  discountPrice?: number | string;
+  isActive?: boolean;
+  categoryId?: string | { _id?: string };
+};
 
 type AdminProductModalProps = {
   isOpen: boolean;
+  product?: Product | null;
   onClose: () => void;
 };
 
@@ -46,14 +61,15 @@ const defaultValues: ProductFormValues = {
 const getApiError = (error: unknown) => {
   if (error && typeof error === "object" && "response" in error) {
     const response = (error as { response?: { data?: { message?: string } } }).response;
-    return response?.data?.message ?? "The product could not be created.";
+    return response?.data?.message ?? "The product could not be saved.";
   }
 
-  return "The product could not be created. Please check your connection.";
+  return "The product could not be saved. Please check your connection.";
 };
 
-const AdminProductModal = ({ isOpen, onClose }: AdminProductModalProps) => {
+const AdminProductModal = ({ isOpen, product, onClose }: AdminProductModalProps) => {
   const queryClient = useQueryClient();
+  const updateProductMutation = useUpdateProductMutation();
   const methods = useForm<ProductFormValues>({
     defaultValues,
     mode: "onBlur",
@@ -78,10 +94,31 @@ const AdminProductModal = ({ isOpen, onClose }: AdminProductModalProps) => {
       createProduct(categoryId, formData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-list"] });
-      reset(defaultValues);
-      clearErrors();
     },
   });
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const productCategoryId = product?.categoryId;
+    const categoryId = typeof productCategoryId === "string"
+      ? productCategoryId
+      : (productCategoryId as { _id?: string } | undefined)?._id ?? "";
+
+    reset({
+      ...defaultValues,
+      name: product?.name ?? "",
+      description: product?.description ?? "",
+      brand: product?.brand ?? "",
+      categoryId,
+      basePrice: String(product?.basePrice ?? ""),
+      discountPrice: String(product?.discountPrice ?? ""),
+      isActive: product?.isActive ?? true,
+      slug: product?.slug ?? "",
+      images: [],
+    });
+    clearErrors();
+  }, [clearErrors, isOpen, product, reset]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -101,6 +138,7 @@ const AdminProductModal = ({ isOpen, onClose }: AdminProductModalProps) => {
 
   const handleClose = () => {
     createProductMutation.reset();
+    updateProductMutation.reset();
     reset(defaultValues);
     clearErrors();
     onClose();
@@ -124,18 +162,25 @@ const AdminProductModal = ({ isOpen, onClose }: AdminProductModalProps) => {
     formData.append("slug", data.slug.trim());
     formData.append("description", data.description.trim());
     formData.append("brand", data.brand.trim());
+    formData.append("categoryId", data.categoryId);
     formData.append("basePrice", String(basePrice));
     formData.append("discountPrice", String(discountPrice));
     formData.append("isActive", String(data.isActive));
-    formData.append("rating", "0");
-    formData.append("reviewCount", "0");
     data.images.forEach((image) => formData.append("images", image));
 
     try {
-      await createProductMutation.mutateAsync({
-        categoryId: data.categoryId,
-        formData,
-      });
+      if (product) {
+        await updateProductMutation.mutateAsync({
+          id: product._id,
+          formData,
+        });
+      } else {
+        await createProductMutation.mutateAsync({
+          categoryId: data.categoryId,
+          formData,
+        });
+      }
+      onClose();
     } catch (error) {
       setError("root", { message: getApiError(error) });
     }
@@ -143,14 +188,16 @@ const AdminProductModal = ({ isOpen, onClose }: AdminProductModalProps) => {
 
   const categories: Array<{ id: string; name: string }> =
     categoriesQuery.data?.data?.categories ?? [];
+  const isEditing = Boolean(product);
+  const isSaving = createProductMutation.isPending || updateProductMutation.isPending;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 p-3 backdrop-blur-sm" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && handleClose()}>
-      <section className="max-h-[94vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="create-product-title">
+      <section className="max-h-[94vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="product-modal-title">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4 sm:px-7">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-600">New product</p>
-            <h2 id="create-product-title" className="mt-1 text-xl font-bold text-slate-900">Create product</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-600">{isEditing ? "Product details" : "New product"}</p>
+            <h2 id="product-modal-title" className="mt-1 text-xl font-bold text-slate-900">{isEditing ? "Edit product" : "Create product"}</h2>
           </div>
           <button type="button" onClick={handleClose} className="grid h-10 w-10 place-items-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700" aria-label="Close dialog">
             <FontAwesomeIcon icon={faTimes} />
@@ -159,12 +206,12 @@ const AdminProductModal = ({ isOpen, onClose }: AdminProductModalProps) => {
 
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-5 sm:p-7">
-            {createProductMutation.isSuccess && (
+            {(createProductMutation.isSuccess || updateProductMutation.isSuccess) && (
               <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800" role="status">
                 <FontAwesomeIcon icon={faCheckCircle} className="mt-0.5 shrink-0" />
                 <div>
-                  <p className="font-semibold">Product created successfully.</p>
-                  <p className="mt-1 text-emerald-700">The new product is available in the catalog.</p>
+                  <p className="font-semibold">Product saved successfully.</p>
+                  <p className="mt-1 text-emerald-700">The catalog has been updated.</p>
                 </div>
               </div>
             )}
@@ -199,19 +246,36 @@ const AdminProductModal = ({ isOpen, onClose }: AdminProductModalProps) => {
               </label>
             </div>
 
-            <FileUpload
-              control={control}
-              name="images"
-              label="Product images"
-              multiple
-              maxFiles={5}
-              requiredMessage="Please upload at least one product image."
-            />
+            {!isEditing && (
+              <FileUpload
+                control={control}
+                name="images"
+                label="Product images"
+                multiple
+                maxFiles={5}
+                requiredMessage="Please upload at least one product image."
+              />
+            )}
+            {isEditing && product?.images?.length ? (
+              <div>
+                <p className="mb-2 text-sm font-semibold text-slate-700">Current images</p>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {product.images.map((image) => (
+                    <img key={image} src={image} alt={product.name} className="h-28 w-full rounded-xl border border-slate-200 object-cover" />
+                  ))}
+                </div>
+                <p className="mt-2 text-xs text-slate-400">Existing images are preserved when no replacement images are selected.</p>
+              </div>
+            ) : null}
 
             <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
               <button type="button" onClick={handleClose} className="btn border border-slate-200 bg-white px-5 text-slate-700 hover:bg-slate-50">Cancel</button>
-              <button type="submit" disabled={createProductMutation.isPending || categoriesQuery.isLoading} className="btn gap-2 bg-slate-900 px-5 text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">
-                {createProductMutation.isPending ? <><FontAwesomeIcon icon={faSpinner} className="animate-spin" /> Creating product...</> : <><FontAwesomeIcon icon={faBox} /> Create product</>}
+              <button type="submit" disabled={isSaving || categoriesQuery.isLoading} className="btn gap-2 bg-slate-900 px-5 text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">
+                {isSaving ? (
+                  <><FontAwesomeIcon icon={faSpinner} className="animate-spin" /> Saving product...</>
+                ) : (
+                  <><FontAwesomeIcon icon={faBox} /> {isEditing ? "Save changes" : "Create product"}</>
+                )}
               </button>
             </div>
           </form>

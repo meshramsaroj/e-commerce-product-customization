@@ -30,7 +30,7 @@ const UserProfile = () => {
 
 
   const handleNavigate =() => {
-    navigate("/admin")
+    navigate("/admin/dashboard")
   }
 
   return (

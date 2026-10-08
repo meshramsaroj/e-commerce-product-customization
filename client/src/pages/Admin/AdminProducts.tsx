@@ -2,6 +2,8 @@ import { useState } from "react";
 import { faBox, faEdit, faPlus, faStar, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useProducts } from "../../hooks/product.hooks";
+import { useDeleteProductMutation } from "../../MutationService/ProductMutation";
+import ConfirmDeleteModal from "../../component/ConfirmDeleteModal";
 import AdminProductModal from "./AdminProductModal";
 
 type Product = {
@@ -29,7 +31,25 @@ const formatPrice = (price: number | string | null | undefined) => {
 const AdminProducts = () => {
   const { data, isLoading, isError } = useProducts();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const deleteProductMutation = useDeleteProductMutation();
   const products: Product[] = data?.data?.products ?? [];
+
+  const openCreateModal = () => {
+    setEditingProduct(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (product: Product) => {
+    setEditingProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingProduct(null);
+  };
 
   return (
     <main className="min-h-full bg-secondary-light p-4 sm:p-6 lg:p-8">
@@ -40,7 +60,7 @@ const AdminProducts = () => {
             <h1 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">Products</h1>
             <p className="mt-1 text-sm text-slate-500">Manage your live catalog and product details.</p>
           </div>
-          <button type="button" onClick={() => setIsModalOpen(true)} className="btn btn-primary w-fit gap-2 bg-slate-900">
+          <button type="button" onClick={openCreateModal} className="btn btn-primary w-fit gap-2 bg-slate-900">
             <FontAwesomeIcon icon={faPlus} /> Add product
           </button>
         </div>
@@ -122,8 +142,8 @@ const AdminProducts = () => {
                           </td>
                           <td className="px-5 py-4">
                             <div className="flex gap-2">
-                              <button className="rounded-lg p-2 text-slate-500 hover:bg-indigo-50 hover:text-indigo-600" aria-label={`Edit ${product.name}`}><FontAwesomeIcon icon={faEdit} /></button>
-                              <button className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600" aria-label={`Delete ${product.name}`}><FontAwesomeIcon icon={faTrash} /></button>
+                              <button type="button" onClick={() => openEditModal(product)} className="rounded-lg p-2 text-slate-500 hover:bg-indigo-50 hover:text-indigo-600" aria-label={`Edit ${product.name}`}><FontAwesomeIcon icon={faEdit} /></button>
+                              <button type="button" onClick={() => setProductToDelete(product)} className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600" aria-label={`Delete ${product.name}`}><FontAwesomeIcon icon={faTrash} /></button>
                             </div>
                           </td>
                         </tr>
@@ -137,7 +157,25 @@ const AdminProducts = () => {
         )}
       </div>
 
-      <AdminProductModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <AdminProductModal
+        isOpen={isModalOpen}
+        product={editingProduct}
+        onClose={closeModal}
+      />
+
+      <ConfirmDeleteModal
+        isOpen={Boolean(productToDelete)}
+        itemName={productToDelete?.name ?? ""}
+        isLoading={deleteProductMutation.isPending}
+        onClose={() => setProductToDelete(null)}
+        onConfirm={() => {
+          if (productToDelete) {
+            deleteProductMutation.mutate(productToDelete._id, {
+              onSuccess: () => setProductToDelete(null),
+            });
+          }
+        }}
+      />
     </main>
   );
 };
