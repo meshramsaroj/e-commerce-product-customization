@@ -1,8 +1,71 @@
 import { Product } from "../models/product.model.js"
 import { getImageUrl } from "../utils/common.utils.js"
 
-const getProductList = async (_, res) => {
-  const products = await Product.find().sort({ createdAt: 1 })
+const getProductList = async (req, res) => {
+  const query = req.query
+
+  const { search, minPrice, maxPrice, sort } = query
+
+  const page = Number(query.page) || 1
+  const limit = Number(query.limit) || 10
+
+  const filter = {}
+
+  if (search) {
+    filter.$or = [
+      {
+        name: {
+          $regex: search,
+          $options: "i"
+        }
+      },
+      {
+        brand: {
+          $regex: search, $options: "i"
+        }
+      },
+      {
+        description: {
+          $regex: search, $options: "i"
+        }
+      }
+    ]
+  }
+
+  if (minPrice || maxPrice) {
+    filter.basePrice = {}
+    if (minPrice) {
+      filter.basePrice.$gte = Number(minPrice)
+    }
+    if (maxPrice) {
+      filter.basePrice.$lte = Number(maxPrice)
+    }
+  }
+
+  let sortQuery = { createdAt: -1 }
+
+  switch (sort) {
+    case "prod_asc": sortQuery = { basePrice: 1 }
+      break;
+    case "prod_desc": sortQuery = { basePrice: -1 }
+      break;
+    case "oldest": sortQuery = { createdAt: 1 }
+      break;
+    case "newest": sortQuery = { createdAt: -1 }
+      break;
+    default: sortQuery
+
+  }
+
+  const skip = (page - 1) * limit
+  const [products, totalProducts] = await Promise.all([
+    Product.find(filter).sort(sortQuery).skip(skip).limit(limit).lean(),
+    Product.countDocuments()])
+
+  const totalPage = Math.ceil(totalProducts / limit)
+  const currentPageTotal = products.length
+  const hasNext = page < totalPage
+  const hasPrevious = page > 1
   if (!products) {
     return res.status(404).json({
       message: "Products not found"
@@ -13,8 +76,17 @@ const getProductList = async (_, res) => {
     message: "Products data",
     data: {
       products,
-      total: products.length
-    }
+      pagination: {
+        currentPage: page,
+        limit,
+        currentPageTotal,
+        totalProducts,
+        totalPage,
+        hasNext,
+        hasPrevious
+      }
+    },
+
   })
 }
 

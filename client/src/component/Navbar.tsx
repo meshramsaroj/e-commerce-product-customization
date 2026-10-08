@@ -20,18 +20,6 @@ const Navbar = () => {
           <span className="text-xl font-bold tracking-tight">ShopEasy</span>
         </NavLink>
 
-        <nav className="ml-4 hidden items-center gap-1 xl:flex" aria-label="Main navigation">
-          <NavLink to="/" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">
-            Home
-          </NavLink>
-          <NavLink to="/products" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">
-            Products
-          </NavLink>
-          <NavLink to="/categories" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">
-            Categories
-          </NavLink>
-        </nav>
-
         <div className="hidden min-w-0 flex-1 items-center gap-4 lg:flex">
           <div className="flex min-w-0 items-center gap-2 text-slate-400">
             <FontAwesomeIcon icon={faLocationDot} className="shrink-0 text-orange-400" />
