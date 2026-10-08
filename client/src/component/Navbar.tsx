@@ -10,21 +10,21 @@ import UserProfile from "./UserProfile";
 
 const Navbar = () => {
   return (
-    <div className="navbar bg-base-100 shadow-sm px-4">
+    <div className="navbar bg-primary-dark text-primary-white shadow-sm px-4">
 
       {/* Hamburger */}
-      <div className="flex-none">
+      {/* <div className="flex-none">
         <label
           htmlFor="my-drawer"
-          className="btn btn-square btn-ghost"
+          className="btn btn-square btn-secondary"
           aria-label="open sidebar"
         >
           <FontAwesomeIcon icon={faBars} />
         </label>
-      </div>
-
+      </div> */}
+      <div className="logo">ShopEasy</div>
       {/* Location */}
-      <div className="flex-1">
+      <div className="flex-1 ps-4">
         <div className="flex items-center gap-2">
           <FontAwesomeIcon icon={faLocationDot} />
 
@@ -62,13 +62,12 @@ const Navbar = () => {
 
       {/* Cart */}
       <div className="flex-none ml-4">
-        <button className="btn btn-ghost">
+        <button className="btn bg-transparent text-primary-white border-none shadow-none">
           <FontAwesomeIcon
             size="xl"
-            className="text-red-600"
             icon={faCartShopping}
           />
-          <span>0</span>
+          <span className="absolute bottom-10">0</span>
         </button>
       </div>
 

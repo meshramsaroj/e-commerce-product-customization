@@ -117,10 +117,26 @@ const getAllCetegories = async (_, res) => {
 	})
 }
 
+const getCategoryIds = async (_, res) => {
+	const categoryIdList = await Category.find().sort({ createdAt: -1 }).select("_id name")
+	const categories = categoryIdList.map(({ _id, name }) => ({
+		id: _id,
+		name
+	}));
+	return res.status(200).json({
+		message: "Category id list",
+		data: {
+			categories: categories,
+			total: categoryIdList.length
+		}
+	})
+}
+
 export {
 	createCategory,
 	updateCategory,
 	deleteCategory,
 	getAllCetegories,
-	getCategoryDetails
+	getCategoryDetails,
+	getCategoryIds
 }

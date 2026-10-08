@@ -65,23 +65,43 @@ const loginUser = async (req, res) => {
     data: { accessToken }
   })
 }
-
 const handleLogout = async (req, res) => {
-  await User.findByIdAndUpdate(req.user._id, {
-    $unset: {
-      refreshToken: 1, //this removed the field document
+  try {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (refreshToken) {
+      try {
+        const decodedToken = jwt.verify(
+          refreshToken,
+          process.env.REFRESH_TOKEN_SECRET
+        );
+
+        await User.findByIdAndUpdate(decodedToken._id, {
+          $unset: {
+            refreshToken: 1,
+          },
+        });
+      } catch (error) {
+        throw new Error(error)
+        // Refresh token expired/invalid.
+        // We can still logout the user.
+      }
     }
-  },
-    { new: true }
-  )
 
-  return res.status(200)
-    .clearCookie("accessToken", cookieOptions)
-    .clearCookie("refreshToken", cookieOptions).json({
-      message: "Logged out successfully",
-    })
+    return res
+      .status(200)
+      .clearCookie("accessToken", cookieOptions)
+      .clearCookie("refreshToken", cookieOptions)
+      .json({
+        message: "Logged out successfully",
+      });
 
-}
+  } catch (error) {
+    return res.status(500).json({
+      message: "Logout failed",
+    });
+  }
+};
 
 const handleUserDetails = async (req, res) => {
   const user = req.user

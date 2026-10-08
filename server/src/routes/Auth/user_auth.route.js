@@ -8,7 +8,7 @@ const router = Router()
 
 router.route("/register").post(validateSchema(createUserSchema), register)
 router.route("/login").post(validateSchema(loginUserSchema), loginUser)
-router.route("/logout").post(verifyJWTToken, handleLogout)
+router.route("/logout").post(handleLogout)
 router.route("/user/me").get(verifyJWTToken, handleUserDetails)
 router.route("/users").get(getAllUsers)
 

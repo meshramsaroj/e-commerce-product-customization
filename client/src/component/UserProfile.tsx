@@ -13,7 +13,7 @@ const UserProfile = () => {
     queryFn: getLoginUserDetails
   })
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     logoutUser().then(res => {
       toast(res.data.message)
       localStorage.removeItem("accessToken")
@@ -23,15 +23,20 @@ const UserProfile = () => {
 
   console.log("user", user)
 
+  const handleNavigate =() => {
+    navigate("/admin")
+  }
 
   return (
-    token || user ?
-      <div className="dropdown dropdown-bottom">
+    token ?
+      <div className="dropdown dropdown-end">
         <div className="avatar avatar-placeholder" tabIndex={0} role="button">
           <FontAwesomeIcon size="2x" icon={faUserCircle} />
           <span className="text-sm">{user?.firstName}</span>
         </div>
-        <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+        <ul tabIndex={-1} className="dropdown-content text-primary-dark menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+          <li><a onClick={handleNavigate}>Dashboard</a></li>
+
           <li><a onClick={handleLogout}>Logout</a></li>
           <li><a>View Profile </a></li>
         </ul>
@@ -39,9 +44,8 @@ const UserProfile = () => {
 
       :
       <div className="flex-row">
-        <NavLink to="/login" className="btn btn-link"> Login </NavLink>
+        <NavLink to="/login" className="btn btn-ligth"> Login </NavLink>
 
-        <NavLink to="/register" className="btn btn-primary"> Create Account</NavLink>
       </div>
   );
 };
