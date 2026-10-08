@@ -23,3 +23,7 @@ export const updateCategory = (id: string, formData: FormData) => {
         }
     }).then(res => res.data)
 }
+
+export const deleteCategory = (id: string) => {
+    return axiosInstance.delete(`/categories/${id}`).then(res => res.data)
+}

@@ -60,6 +60,7 @@ const updateCategory = async (req, res) => {
 		{
 			$set: {
 				...req.body,
+				parentCategoryId: req.body.parentCategoryId || null,
 				slug: req.body.slug?.trim().toLowerCase() ?? existingCategory.slug,
 				image: imageUrl,
 			}

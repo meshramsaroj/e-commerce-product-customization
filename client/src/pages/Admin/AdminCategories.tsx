@@ -1,8 +1,10 @@
 import { faEdit, faFolder, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AdminCategoryModel from "./AdminCategoryModel";
+import ConfirmDeleteModal from "../../component/ConfirmDeleteModal";
 import { useState } from "react";
 import { useCategories } from "../../hooks/category.hook";
+import { useDeleteCategoryMutation } from "../../MutationService/categoryMutation";
 
 type Category = {
     _id: string;
@@ -18,7 +20,9 @@ const AdminCategories = () => {
     const { data, isLoading, isError } = useCategories();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+    const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
     const categories: Category[] = data?.data?.categories ?? [];
+    const deleteCategoryMutation = useDeleteCategoryMutation();
 
     const openCreateModal = () => {
         setEditingCategory(null);
@@ -85,7 +89,7 @@ const AdminCategories = () => {
                                         </div>
                                         <div className="flex gap-1">
                                             <button type="button" onClick={() => openEditModal(category)} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100" aria-label={`Edit ${category.name}`}><FontAwesomeIcon icon={faEdit} /></button>
-                                            <button type="button" className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600" aria-label={`Delete ${category.name}`}><FontAwesomeIcon icon={faTrash} /></button>
+                                            <button type="button" onClick={() => setCategoryToDelete(category)} className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600" aria-label={`Delete ${category.name}`}><FontAwesomeIcon icon={faTrash} /></button>
                                         </div>
                                     </div>
 
@@ -105,6 +109,20 @@ const AdminCategories = () => {
                 category={editingCategory}
                 categories={categories}
                 onClose={closeModal}
+            />
+
+            <ConfirmDeleteModal
+                isOpen={Boolean(categoryToDelete)}
+                itemName={categoryToDelete?.name ?? ""}
+                isLoading={deleteCategoryMutation.isPending}
+                onClose={() => setCategoryToDelete(null)}
+                onConfirm={() => {
+                    if (categoryToDelete) {
+                        deleteCategoryMutation.mutate(categoryToDelete._id, {
+                            onSuccess: () => setCategoryToDelete(null),
+                        });
+                    }
+                }}
             />
 
         </main>)
