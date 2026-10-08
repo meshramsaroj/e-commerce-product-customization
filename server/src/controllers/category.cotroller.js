@@ -40,21 +40,28 @@ const createCategory = async (req, res) => {
 
 const updateCategory = async (req, res) => {
 	const { id } = req.params
-	let imageUrlResponse = null
+	const existingCategory = await Category.findById(id)
+
+	if (!existingCategory) {
+		return res.status(404).json({
+			message: "Category not found"
+		})
+	}
+
+	let imageUrl = existingCategory.image
 
 	if (req.file) {
-		imageUrlResponse = await getImageUrl(req.file, res)
+		const imageUrlResponse = await getImageUrl(req.file, res)
+		imageUrl = imageUrlResponse?.url ?? existingCategory.image
 	}
 
 	const updatedCategory = await Category.findByIdAndUpdate(
-		{
-			_id: id
-		},
+		id,
 		{
 			$set: {
 				...req.body,
-				slug: req?.slug?.trim().toLowerCase(),
-				image: imageUrlResponse?.url
+				slug: req.body.slug?.trim().toLowerCase() ?? existingCategory.slug,
+				image: imageUrl,
 			}
 		}
 	)

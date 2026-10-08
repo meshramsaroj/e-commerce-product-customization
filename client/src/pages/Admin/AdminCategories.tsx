@@ -17,7 +17,23 @@ type Category = {
 const AdminCategories = () => {
     const { data, isLoading, isError } = useCategories();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const categories: Category[] = data?.data?.categories ?? [];
+
+    const openCreateModal = () => {
+        setEditingCategory(null);
+        setIsModalOpen(true);
+    };
+
+    const openEditModal = (category: Category) => {
+        setEditingCategory(category);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setEditingCategory(null);
+    };
 
     return (
         <main className="min-h-full bg-secondary-light p-4 sm:p-6 lg:p-8">
@@ -27,7 +43,7 @@ const AdminCategories = () => {
                         <p className="text-sm font-semibold text-orange-600">CATALOG MANAGEMENT</p>
                         <h1 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">Categories</h1>
                     </div>
-                    <button type="button" className="btn btn-primary w-fit gap-2 bg-slate-900" onClick={() => setIsModalOpen(true)}>
+                    <button type="button" className="btn btn-primary w-fit gap-2 bg-slate-900" onClick={openCreateModal}>
                         <FontAwesomeIcon icon={faPlus} /> Add category
                     </button>
                 </div>
@@ -68,7 +84,7 @@ const AdminCategories = () => {
                                             <p className="mt-1 text-xs font-medium text-orange-600">/{category.slug}</p>
                                         </div>
                                         <div className="flex gap-1">
-                                            <button type="button" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100" aria-label={`Edit ${category.name}`}><FontAwesomeIcon icon={faEdit} /></button>
+                                            <button type="button" onClick={() => openEditModal(category)} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100" aria-label={`Edit ${category.name}`}><FontAwesomeIcon icon={faEdit} /></button>
                                             <button type="button" className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600" aria-label={`Delete ${category.name}`}><FontAwesomeIcon icon={faTrash} /></button>
                                         </div>
                                     </div>
@@ -84,7 +100,12 @@ const AdminCategories = () => {
                     </div>
                 )}
             </div>
-            <AdminCategoryModel isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <AdminCategoryModel
+                isOpen={isModalOpen}
+                category={editingCategory}
+                categories={categories}
+                onClose={closeModal}
+            />
 
         </main>)
 };

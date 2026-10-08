@@ -34,7 +34,7 @@ const FileUpload = <
   multiple = true,
   accept = "image/png,image/jpeg",
   maxFiles = 5,
-  requiredMessage = "Please upload at least one file.",
+  requiredMessage,
 }: FileUploadProps<TFieldValues, TName>) => {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const {
@@ -46,7 +46,7 @@ const FileUpload = <
     rules: {
       validate: (value) => {
         const files = value as unknown as File[] | undefined;
-        if (!files?.length) return requiredMessage;
+        if (requiredMessage && !files?.length) return requiredMessage;
         return true;
       },
     },
