@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken"
 import { cookieOptions } from "../config/constants.js"
 import { User } from "../models/user.model.js"
 import { generateAccessAndRefreshToken } from "../services/generateToken.service.js"
@@ -42,11 +43,10 @@ const register = async (req, res) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body
 
-  // check user is existed
   const existingUser = await User.findOne({ email }).select("+password")
   if (!existingUser) {
     return res.status(401).json({
-      message: `User is not found`
+      message: "User is not found"
     })
   }
 
@@ -58,49 +58,77 @@ const loginUser = async (req, res) => {
     })
   }
 
-
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(existingUser._id)
-  return res.status(200).cookie("refreshToken", refreshToken, cookieOptions).cookie("accessToken", accessToken, cookieOptions).json({
-    message: "User logged in successfully",
-    data: { accessToken }
-  })
+  return res.status(200)
+    .cookie("refreshToken", refreshToken, cookieOptions)
+    .cookie("accessToken", accessToken, cookieOptions)
+    .json({
+      message: "User logged in successfully",
+      data: { accessToken }
+    })
 }
-const handleLogout = async (req, res) => {
+
+const handleRefreshToken = async (req, res) => {
+  const refreshToken = req.cookies.refreshToken
+
+  if (!refreshToken) {
+    return res.status(401).json({
+      message: "Refresh token is required"
+    })
+  }
+
   try {
-    const refreshToken = req.cookies.refreshToken;
+    const decodedToken = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    )
+    const user = await User.findById(decodedToken._id)
 
-    if (refreshToken) {
-      try {
-        const decodedToken = jwt.verify(
-          refreshToken,
-          process.env.REFRESH_TOKEN_SECRET
-        );
-
-        await User.findByIdAndUpdate(decodedToken._id, {
-          $unset: {
-            refreshToken: 1,
-          },
-        });
-      } catch (error) {
-        throw new Error(error)
-        // Refresh token expired/invalid.
-        // We can still logout the user.
-      }
+    if (!user || user.refreshToken !== refreshToken) {
+      return res.status(401).json({
+        message: "Invalid refresh token"
+      })
     }
 
-    return res
-      .status(200)
-      .clearCookie("accessToken", cookieOptions)
-      .clearCookie("refreshToken", cookieOptions)
-      .json({
-        message: "Logged out successfully",
-      });
-
+    const accessToken = user.generateAccessToken()
+    return res.status(200).json({
+      message: "Access token refreshed successfully",
+      data: { accessToken }
+    })
   } catch (error) {
-    return res.status(500).json({
-      message: "Logout failed",
-    });
+    return res.status(401).json({
+      message: "Refresh token is invalid or expired"
+    })
   }
+}
+
+const handleLogout = async (req, res) => {
+  const refreshToken = req.cookies.refreshToken
+
+  if (refreshToken) {
+    try {
+      const decodedToken = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+      )
+
+      await User.findByIdAndUpdate(decodedToken._id, {
+        $unset: {
+          refreshToken: 1,
+        },
+      })
+    } catch (error) {
+      // The token may already be expired; logout still clears local and cookie state.
+    }
+  }
+
+  return res
+    .status(200)
+    .clearCookie("accessToken", cookieOptions)
+    .clearCookie("refreshToken", cookieOptions)
+    .json({
+      message: "Logged out successfully",
+    })
 };
 
 const handleUserDetails = async (req, res) => {
@@ -134,6 +162,7 @@ const getAllUsers = async (_, res) => {
 export {
   register,
   loginUser,
+  handleRefreshToken,
   handleLogout,
   handleUserDetails,
   getAllUsers

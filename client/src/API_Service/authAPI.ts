@@ -14,5 +14,5 @@ export const getLoginUserDetails = () => {
 }
 
 export const logoutUser = () => {
-  return axiosInstance.post("/auth/logout").then(res => res).catch(error => error)
+  return axiosInstance.post("/auth/logout").then(res => res.data)
 }

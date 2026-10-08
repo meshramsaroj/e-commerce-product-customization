@@ -1,24 +1,31 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getLoginUserDetails, logoutUser } from "../API_Service/authAPI";
 import { NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify"
+import { clearAuthState } from "../API_Service/axiosInstance";
 
 const UserProfile = () => {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const token = localStorage.getItem("accessToken")
   const { data: user } = useQuery({
     queryKey: ["user-details"],
     queryFn: getLoginUserDetails
   })
 
-  const handleLogout = () => {
-    logoutUser().then(res => {
-      toast(res.data.message)
-      localStorage.removeItem("accessToken")
-      navigate("/")
-    }).catch(error => error)
+  const handleLogout = async () => {
+    try {
+      const response = await logoutUser()
+      toast.success(response.message ?? "Logged out successfully")
+    } catch (error) {
+      toast.error("Unable to log out. Please try again.")
+    } finally {
+      clearAuthState()
+      queryClient.clear()
+      navigate("/login")
+    }
   }
 
 
