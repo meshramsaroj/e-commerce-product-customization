@@ -22,7 +22,7 @@ export type ProductSpecificationsFormValues = {
 };
 
 type ProductSpecificationsTableProps = {
-  control: Control<ProductSpecificationsFormValues>;
+  control: Control<any>;
 };
 
 const createSpecificationRow = (): SpecificationRow => ({
@@ -34,7 +34,7 @@ const createSpecificationRow = (): SpecificationRow => ({
 const ProductSpecificationsTable = ({
   control,
 }: ProductSpecificationsTableProps) => {
-  const { register, setError, clearErrors } = useFormContext<ProductSpecificationsFormValues>();
+  const { register, setError, clearErrors } = useFormContext<any>();
   const { fields, append, remove } = useFieldArray({
     control,
     name: "specifications",
@@ -70,17 +70,17 @@ const ProductSpecificationsTable = ({
 
   const toggleAllRows = () => {
     const allSelected = fields.length > 0 && selectedRowIds.length === fields.length;
-    setSelectedRowIds(allSelected ? [] : fields.map((field) => field.id));
+    setSelectedRowIds(allSelected ? [] : fields.map((field) => (field as { id: string }).id));
   };
 
   const validateUniqueLabel = (label: string, index: number) => {
     const normalizedLabel = label.trim().toLowerCase();
     if (!normalizedLabel) return true;
 
-    const duplicate = fields.some((field, fieldIndex) =>
-      fieldIndex !== index &&
-      field.label.trim().toLowerCase() === normalizedLabel,
-    );
+    const duplicate = fields.some((field, fieldIndex) => {
+      const row = field as unknown as { label: string };
+      return fieldIndex !== index && row.label.trim().toLowerCase() === normalizedLabel;
+    });
 
     if (duplicate) {
       setError(`specifications.${index}.label`, {
@@ -135,16 +135,17 @@ const ProductSpecificationsTable = ({
               </thead>
               <tbody>
                 {fields.map((field, index) => {
-                  const rowSelected = selectedRowIds.includes(field.id);
+                  const row = field as unknown as { id: string; label: string; value: string };
+                  const rowSelected = selectedRowIds.includes(row.id);
 
                   return (
-                    <tr key={field.id} className="border-t border-slate-100">
+                    <tr key={row.id} className="border-t border-slate-100">
                       <td className="px-4 py-3">
                         <input
                           type="checkbox"
                           aria-label={`Select specification row ${index + 1}`}
                           checked={rowSelected}
-                          onChange={() => toggleRowSelection(field.id)}
+                          onChange={() => toggleRowSelection(row.id)}
                           className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-500"
                         />
                       </td>

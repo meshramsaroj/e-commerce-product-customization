@@ -45,7 +45,7 @@ const Login = () => {
           <div className="card-title flex-col">
             <h2 className="text-xl">Login</h2>
             <FormProvider {...methods}>
-              <form action={handleSubmit(onSubmit)}>
+              <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="flex flex-col w-full">
                   <InputField field={"email"} label="Email" />
                   <InputField field={"password"} label="Password" type="password" />

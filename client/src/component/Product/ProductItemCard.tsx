@@ -4,32 +4,41 @@ import Rating from "./Rating";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping, faHeart } from "@fortawesome/free-solid-svg-icons";
 
+type ProductCardItem = {
+  _id: string;
+  name: string;
+  brand: string;
+  images: string[];
+  rating?: number;
+  basePrice: number;
+  discountPrice: number;
+};
+
 const formatPrice = (val: number) => {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
-  }).format(val)
-}
-const ProductItemCard = ({ product }) => {
+  }).format(val);
+};
 
-  const price = product.basePrice - product.discountPrice
-  const discountPercentage =
-    Math.round(((product.discountPrice) / product.basePrice) * 100);
+const ProductItemCard = ({ product }: { product: ProductCardItem }) => {
+  const price = Math.max(product.basePrice - product.discountPrice, 0);
+  const discountPercentage = product.basePrice
+    ? Math.round((product.discountPrice / product.basePrice) * 100)
+    : 0;
+
   return (
-    <div className="card bg-base-100  shadow-sm">
+    <div className="card bg-base-100 shadow-sm">
       <figure>
         <ProductImages id={product._id} images={product.images} />
-
       </figure>
-      <div className="card-body  flex-col items-start">
+      <div className="card-body flex-col items-start">
         <div className="badge badge-secondary">{product.brand}</div>
-        <h2 className="card-title truncate-text ">
-          {product.name}
-        </h2>
+        <h2 className="card-title truncate-text">{product.name}</h2>
         <Rating id={product._id} rating={product?.rating || 5} />
         <p className="flex-row flex gap-3">
           <strong>{formatPrice(price)}</strong>
-          <span className="strickThrough">{formatPrice(product?.basePrice)}</span>
+          <span className="strickThrough">{formatPrice(product.basePrice)}</span>
           <span>({discountPercentage}% off)</span>
         </p>
         <div className="card-actions justify-end">

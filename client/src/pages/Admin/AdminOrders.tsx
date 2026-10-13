@@ -1,4 +1,4 @@
-import { faBox, faReceipt, faShoppingCart } from "@fortawesome/free-solid-svg-icons";
+import { faBox, faReceipt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const orders = [

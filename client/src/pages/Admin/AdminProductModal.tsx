@@ -293,7 +293,7 @@ const AdminProductModal = ({ isOpen, product, onClose }: AdminProductModalProps)
               </div>
             ) : null}
 
-            <ProductSpecificationsTable control={control} />
+            <ProductSpecificationsTable control={control as any} />
 
             <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
               <button type="button" onClick={handleClose} className="btn border border-slate-200 bg-white px-5 text-slate-700 hover:bg-slate-50">Cancel</button>

@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../API_Service/axiosInstance";
 import type { ILoginProps } from "../pages/Login";
-import { loginUser } from "../API_Service/authAPI";
 
 type IAxiosMethod = 'post' | 'delete' | 'put' | 'patch' | 'get';
 

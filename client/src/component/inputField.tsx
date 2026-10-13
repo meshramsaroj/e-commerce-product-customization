@@ -1,21 +1,27 @@
-import { useFormContext } from "react-hook-form"
+import type { ChangeEvent } from "react";
+import { useFormContext } from "react-hook-form";
 
-const InputField = ({ field, label, type = "text" }: { field: string, label: string, type?: string }) => {
-  const { getValues, setValue } = useFormContext<any>()
-  const value = getValues(field)
+type InputFieldProps = {
+  field: string;
+  label: string;
+  type?: string;
+};
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setValue(name, value)
-  }
+const InputField = ({ field, label, type = "text" }: InputFieldProps) => {
+  const { register } = useFormContext<Record<string, string>>();
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    event.target.value = event.target.value.trimStart();
+  };
+
   return (
     <fieldset className="fieldset">
       <label className="label">{label}</label>
       <input
-        name={field}
+        {...register(field)}
         onChange={handleChange}
         type={type}
-        placeholder={`Enter your ${field} `}
+        placeholder={`Enter your ${field}`}
         className="input-text"
       />
     </fieldset>
