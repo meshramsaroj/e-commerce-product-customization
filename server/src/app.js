@@ -21,12 +21,15 @@ import authRoute from "./routes/Auth/user_auth.route.js";
 import addressRoute from "./routes/Address/address.routes.js"
 import categoryRoute from "./routes/Product/category.routes.js"
 import productRoute from "./routes/Product/product.routes.js"
-import { core } from "zod";
+import bookRoute from "./routes/book.route.js";
 
 app.use("/api/auth", authRoute)
 app.use("/api/addresses", addressRoute)
 app.use("/api/categories", categoryRoute)
 app.use("/api/products", productRoute)
+app.use("/api/books", bookRoute) // here used aws s3 bucket
+
+
 
 
 
